@@ -371,7 +371,7 @@ fn read_subdirs_sorted(path: &Path) -> Vec<PathBuf> {
     subdirs
 }
 
-/// Right-click context menu for folders in Drives & Folders matching reference/picture-9.png
+/// Right-click context menu for folders in Drives & Folders
 fn show_folder_context_menu(
     ui: &mut Ui,
     path: &Path,

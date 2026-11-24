@@ -95,19 +95,19 @@ pub struct DecodedMedia {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ImageFilter {
     None,
-    Sharpen,      // thumbs10.flt: [-1,-1,-1; -1,16,-1; -1,-1,-1] / 8
-    Blur,         // thumbs10.flt: [1,2,1; 2,4,2; 1,2,1] / 16
-    EmbossMedium, // thumbs10.flt: [-1,-2,-1; 0,0,0; 1,2,1] + 192
-    EdgesWeak,    // thumbs10.flt: [0,1,0; 1,-4,1; 0,1,0]
-    Invert,       // thumbs10.flt: Point Invert (255 - x)
+    Sharpen,      // 3x3 sharpen kernel: [-1,-1,-1; -1,16,-1; -1,-1,-1] / 8
+    Blur,         // 3x3 Gaussian-like blur: [1,2,1; 2,4,2; 1,2,1] / 16
+    EmbossMedium, // 3x3 emboss: [-1,-2,-1; 0,0,0; 1,2,1] + 192
+    EdgesWeak,    // 3x3 Laplacian edge detect: [0,1,0; 1,-4,1; 0,1,0]
+    Invert,       // Point invert (255 - x)
 }
 
 impl ImageFilter {
     pub fn label(&self) -> &'static str {
         match self {
             Self::None => "Original",
-            Self::Sharpen => "Sharpen (thumbs10.flt)",
-            Self::Blur => "Blur (thumbs10.flt)",
+            Self::Sharpen => "Sharpen",
+            Self::Blur => "Blur",
             Self::EmbossMedium => "Emboss Medium",
             Self::EdgesWeak => "Edges (Weak)",
             Self::Invert => "Invert",
@@ -1366,7 +1366,7 @@ pub fn decode_bmp_tolerant(bytes: &[u8]) -> Option<DynamicImage> {
 }
 
 /// Pure-Rust tolerant single-frame GIF LZW decoder for files truncated mid-sub-block
-/// (such as `Hello Kitty 335.gif`, where 99%+ of pixels exist before premature EOF).
+/// where most pixels are still intact before premature EOF.
 fn decode_truncated_gif(bytes: &[u8]) -> Option<DynamicImage> {
     if bytes.len() < 24 || (!bytes.starts_with(b"GIF87a") && !bytes.starts_with(b"GIF89a")) {
         return None;
@@ -1955,7 +1955,7 @@ fn error_media(filetype: &str, msg: String) -> DecodedMedia {
     }
 }
 
-/// Applies exact convolution kernels from ThumbsPlus 10 Data/thumbs10.flt
+/// Applies 3x3 convolution and point image filters for live preview inspection.
 pub fn apply_filter(img: &DynamicImage, filter: ImageFilter) -> DynamicImage {
     if matches!(filter, ImageFilter::None) {
         return img.clone();
@@ -2280,37 +2280,38 @@ mod tests {
     }
 
     #[test]
-    fn decodes_error_log_samples_misnamed_webp_and_truncated_gif() {
+    fn decodes_misnamed_webp_as_jpeg_and_truncated_gif() {
         let gs = GhostscriptConfig {
             gs_path: String::new(),
             ..Default::default()
         };
-        let err_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("error_log");
+        let img = test_image();
 
-        for (name, min_w, min_h) in [
-            ("buzz-the-bee.jpeg", 100u32, 100u32),
-            ("Cornelius The Corn Flakes Rooster.jpg", 100, 100),
-            ("Hello Kitty 335.gif", 600, 800),
-        ] {
-            let p = err_dir.join(name);
-            if !p.is_file() {
-                continue;
-            }
-            let dec = decode_thumbnail(&p, &gs);
-            assert!(
-                dec.image.is_some(),
-                "Expected {name} to decode cleanly, got log: {}",
-                dec.log_line
-            );
-            assert!(
-                dec.width >= min_w && dec.height >= min_h,
-                "Unexpected dimensions for {name}: {}x{}",
-                dec.width,
-                dec.height
-            );
+        // 1. WebP bytes saved with a .jpg extension must decode via magic-byte sniffing
+        let (webp_bytes, _) = encode_thumbnail(&img, ThumbFormat::Webp, 80);
+        let tmp_jpg = std::env::temp_dir().join(format!(
+            "thumbcraft_misnamed_webp_{}.jpg",
+            std::process::id()
+        ));
+        std::fs::write(&tmp_jpg, &webp_bytes).unwrap();
+        let dec_webp = decode_thumbnail(&tmp_jpg, &gs);
+        let _ = std::fs::remove_file(&tmp_jpg);
+        assert!(dec_webp.image.is_some(), "misnamed WebP should decode cleanly");
+        assert_eq!(dec_webp.width, 64);
+        assert_eq!(dec_webp.height, 48);
+
+        // 2. Truncated GIF (missing final LZW sub-block bytes and 0x3B trailer) must still recover
+        let mut gif_buf = Vec::new();
+        {
+            let mut enc = image::codecs::gif::GifEncoder::new(&mut gif_buf);
+            let frame = image::Frame::new(img.to_rgba8());
+            enc.encode_frame(frame).unwrap();
         }
+        let trunc_gif = &gif_buf[..gif_buf.len().saturating_sub(12)];
+        let recovered = decode_truncated_gif(trunc_gif)
+            .expect("truncated GIF should recover partial frame");
+        assert_eq!(recovered.width(), 64);
+        assert_eq!(recovered.height(), 48);
     }
 
     #[test]

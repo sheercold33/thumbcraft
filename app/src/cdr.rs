@@ -16,7 +16,7 @@ pub struct CdrParsed {
 /// Parses CorelDRAW files across all versions:
 /// - ZIP-based CDR (X4/v14 through 2024+): extracts PNG/BMP preview + META-INF/metadata.xml & XMP keywords + nested riffData.cdr
 /// - Classic RIFF CDR/CMX/CCX/PAT (v3-v13): extracts DISP/BM DIB preview + LIST/INFO (IKEY, INAM, ISBJ, ICMT, IART, ISFT, ICRD) + XMP + embedded PS/EPS
-/// - Legacy CorelDRAW v2 (WL) and @CorelBMF previews (matching Thumbs10.exe sub_5b0af0 / sub_5b0df0)
+/// - Legacy CorelDRAW v2 (WL) and @CorelBMF previews
 #[allow(dead_code)]
 pub fn parse_cdr(path: &Path) -> Result<CdrParsed, String> {
     let bytes = std::fs::read(path).map_err(|e| format!("Failed to read CDR: {e}"))?;
@@ -38,12 +38,12 @@ pub fn parse_cdr_bytes(bytes: &[u8]) -> Result<CdrParsed, String> {
         return parse_riff_cdr(bytes);
     }
 
-    // 3. CorelDRAW Version 2 (WL = 0x4c57, matching Thumbs10.exe sub_5b0af0 / sub_5b0df0)
+    // 3. CorelDRAW Version 2 (WL = 0x4c57)
     if bytes[0] == b'W' && bytes[1] == b'L' {
         return parse_wl_v2_cdr(bytes);
     }
 
-    // 4. Corel Gallery @CorelBMF (matching Thumbs10.exe sub_5b0af0)
+    // 4. Corel Gallery @CorelBMF
     if bytes.starts_with(b"@CorelBMF") {
         return parse_corel_bmf(bytes);
     }
@@ -328,7 +328,7 @@ fn parse_riff_cdr(bytes: &[u8]) -> Result<CdrParsed, String> {
     metadata.insert("Container".into(), format!("RIFF ({form_type})"));
     metadata.insert("CDR Version".into(), version_label.clone());
 
-    // Walk full RIFF chunk hierarchy (not limited to 4096 bytes like Thumbs10.exe Corel.c)
+    // Walk full RIFF chunk hierarchy
     walk_riff_chunks(
         bytes,
         12,
@@ -341,7 +341,7 @@ fn parse_riff_cdr(bytes: &[u8]) -> Result<CdrParsed, String> {
         0,
     );
 
-    // Fallback scan for DISP or BM in first 4096 bytes (matching Thumbs10.exe sub_5b0df0)
+    // Fallback scan for DISP or BM near the start of the RIFF stream
     if preview.is_none() {
         let scan_end = bytes.len().min(65536);
         if let Some(pos) = find_subslice(&bytes[..scan_end], b"DISP") {
@@ -515,8 +515,8 @@ fn walk_riff_chunks(
     }
 }
 
-/// Decodes a RIFF DISP chunk into a DynamicImage.
-/// Matches Thumbs10.exe sub_5b0df0: 4-byte clipboard type (usually 8 = CF_DIB) followed by BITMAPINFOHEADER (40 bytes) + palette + pixel bits.
+/// Decodes a RIFF DISP chunk into a DynamicImage:
+/// 4-byte clipboard type (usually 8 = CF_DIB) followed by BITMAPINFOHEADER (40 bytes) + palette + pixel bits.
 fn decode_disp_chunk(payload: &[u8]) -> Option<DynamicImage> {
     if payload.len() < 44 {
         return None;
@@ -818,7 +818,7 @@ fn scan_embedded_preview_image(bytes: &[u8]) -> Option<DynamicImage> {
     None
 }
 
-/// CorelDRAW v2 (WL magic) 1-bit preview decoder matching Thumbs10.exe sub_5b0af0 / sub_5b0df0
+/// CorelDRAW v2 (WL magic) 1-bit preview decoder
 fn parse_wl_v2_cdr(bytes: &[u8]) -> Result<CdrParsed, String> {
     let mut metadata = BTreeMap::new();
     metadata.insert("CDR Version".into(), "CorelDRAW (Version 2)".into());

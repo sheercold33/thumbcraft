@@ -5,10 +5,10 @@ use serde::{Deserialize, Serialize};
 use std::io::Read;
 use std::path::Path;
 
-/// Default color weight from reference/picture-5.png ("Color metric contribution to similarity: 40 %")
+/// Default color weight contribution to visual similarity (40%)
 pub const DEFAULT_COLOR_SIMILARITY_WEIGHT: f32 = 0.40;
 
-/// Perceptual thumbnail fingerprint modeled after ThumbsPlus metric1 (structure) + metric2 (color)
+/// Perceptual thumbnail fingerprint combining structural (dHash + luma) and color metrics
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct VisualSignature {
     /// 64-bit difference hash (horizontal gradient structure)
@@ -266,7 +266,7 @@ pub fn md5_file(path: &Path) -> Result<String, String> {
     Ok(hasher.finalize_hex())
 }
 
-/// Computes MD5 only if the file size does not exceed `max_bytes` (matching Thumbs10.exe `MaxMD5Kb`).
+/// Computes MD5 only if the file size does not exceed `max_bytes`.
 pub fn md5_file_capped(path: &Path, max_bytes: u64) -> Result<Option<String>, String> {
     let meta = std::fs::metadata(path).map_err(|e| e.to_string())?;
     if meta.len() > max_bytes {

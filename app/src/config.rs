@@ -2,13 +2,13 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 #[allow(dead_code)]
-pub const DEFAULT_THUMB_WIDTH: u32 = 100; // Thumbs10.exe 0xbc253c
+pub const DEFAULT_THUMB_WIDTH: u32 = 100;
 #[allow(dead_code)]
-pub const DEFAULT_THUMB_HEIGHT: u32 = 100; // Thumbs10.exe 0xbc2540
+pub const DEFAULT_THUMB_HEIGHT: u32 = 100;
 #[allow(dead_code)]
-pub const DEFAULT_THUMB_JPEG_QUALITY: u8 = 65; // Thumbs10.exe 0xbc2544
-pub const DEFAULT_THUMB_QUALITY: u8 = 80; // reference/picture-10.png (Quality 80, WEBP default per user request)
-pub const DEFAULT_THUMB_CACHE_DIM: u32 = 120; // reference/picture-10.png (120x120)
+pub const DEFAULT_THUMB_JPEG_QUALITY: u8 = 65;
+pub const DEFAULT_THUMB_QUALITY: u8 = 80;
+pub const DEFAULT_THUMB_CACHE_DIM: u32 = 120;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThumbFormat {
@@ -96,26 +96,26 @@ impl SearchScope {
     }
 }
 #[allow(dead_code)]
-pub const DEFAULT_TREE_PANE_WIDTH: f32 = 220.0; // Thumbs10.exe 0x648c70 (200px min/default)
+pub const DEFAULT_TREE_PANE_WIDTH: f32 = 220.0;
 #[allow(dead_code)]
-pub const DEFAULT_PREVIEW_PANE_HEIGHT: f32 = 210.0; // Thumbs10.exe 0x648c70 (200px)
+pub const DEFAULT_PREVIEW_PANE_HEIGHT: f32 = 210.0;
 #[allow(dead_code)]
-pub const DEFAULT_INFO_PANE_WIDTH: f32 = 275.0; // Thumbs10.exe 0x648c70 (200px+)
+pub const DEFAULT_INFO_PANE_WIDTH: f32 = 275.0;
 #[allow(dead_code)]
-pub const DEFAULT_TASKS_PANE_HEIGHT: f32 = 155.0; // Thumbs10.exe 0x648c70 (200px)
+pub const DEFAULT_TASKS_PANE_HEIGHT: f32 = 155.0;
 
-pub const GS_MIN_DPI: u32 = 50; // plug_gs.tpp FUN_100012c0 (0x32)
-pub const GS_MAX_DPI: u32 = 1440; // plug_gs.tpp FUN_100012c0 (0x5a0)
-pub const GS_DPI_PRESETS: &[u32] = &[50, 72, 100, 150, 200, 300, 600]; // plug_gs.tpp FUN_100015c0 (0x100226b0)
-pub const GS_MIN_REVISION: u32 = 800; // plug_gs.tpp FUN_10001830 (799 < revision)
-pub const GS_HEADER_PEEK_BYTES: usize = 200; // plug_gs.tpp FUN_10001c80 (_fread 200)
-pub const GS_DPI_TO_PPM_FACTOR: f64 = 39.37; // plug_gs.tpp FUN_10001830 (_DAT_10022770)
-pub const GS_DEFAULT_THUMB_DPI: u32 = 100; // plug_gs.tpp DAT_10029000 (ThumbDPI)
-pub const GS_DEFAULT_PREVIEW_DPI: u32 = 150; // plug_gs.tpp DAT_10029004 (ViewDPI)
-pub const GS_DEFAULT_FULL_DPI: u32 = 300; // plug_gs.tpp DAT_10029008 (PrintDPI)
-pub const GS_DEFAULT_AA_BITS: u8 = 4; // plug_gs.tpp DAT_1002900c (AntiAlias)
-pub const GS_DEFAULT_COLOR_DEPTH: u8 = 24; // plug_gs.tpp DAT_10029010 (Format)
-pub const MAX_MD5_FILE_KB: u64 = 16384; // Thumbs10.exe table 0xa6d3fc (MaxMD5Kb = 16 MB)
+pub const GS_MIN_DPI: u32 = 50;
+pub const GS_MAX_DPI: u32 = 1440;
+pub const GS_DPI_PRESETS: &[u32] = &[50, 72, 100, 150, 200, 300, 600];
+pub const GS_MIN_REVISION: u32 = 800;
+pub const GS_HEADER_PEEK_BYTES: usize = 200;
+pub const GS_DPI_TO_PPM_FACTOR: f64 = 39.37;
+pub const GS_DEFAULT_THUMB_DPI: u32 = 100;
+pub const GS_DEFAULT_PREVIEW_DPI: u32 = 150;
+pub const GS_DEFAULT_FULL_DPI: u32 = 300;
+pub const GS_DEFAULT_AA_BITS: u8 = 4;
+pub const GS_DEFAULT_COLOR_DEPTH: u8 = 24;
+pub const MAX_MD5_FILE_KB: u64 = 16384; // 16 MB cap for automatic MD5 hashing
 
 fn default_true() -> bool {
     true

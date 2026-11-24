@@ -3172,7 +3172,7 @@ impl eframe::App for ThumbCraftApp {
         self.poll_thumb_decodes(ctx);
         self.poll_folder_watcher(ctx);
 
-        // 1. TOP MENU BAR (charcoal dark header matching reference/picture-1.png)
+        // 1. TOP MENU BAR
         egui::TopBottomPanel::top("menu_bar_panel")
             .exact_height(26.0)
             .frame(
@@ -3376,7 +3376,7 @@ impl eframe::App for ThumbCraftApp {
                 });
             });
 
-        // 2. MAIN TOOLBAR (silver-gray bar matching reference/picture-1.png)
+        // 2. MAIN TOOLBAR
         if self.settings.layout.show_toolbar {
             egui::TopBottomPanel::top("toolbar_panel")
                 .exact_height(38.0)
@@ -3525,7 +3525,7 @@ impl eframe::App for ThumbCraftApp {
                 });
         }
 
-        // 3. STATUS BAR (charcoal dark bar matching reference/picture-1.png)
+        // 3. STATUS BAR
         if self.settings.layout.show_status_bar {
             egui::TopBottomPanel::bottom("status_bar_panel")
                 .exact_height(24.0)

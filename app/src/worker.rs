@@ -469,8 +469,7 @@ fn process_batch(
 
 // ---------------------------------------------------------------------------
 // Managed Background Task Queue (Scan Folder / Scan Tree / Remake / F3 Rebuild Selected)
-// Supports real per-task Pause, Resume, Quit, Thread ID, Elapsed & Active time, and Errors
-// matching reference/picture-11.png & reference/picture-12.png
+// Supports per-task Pause, Resume, Quit, Thread ID, Elapsed & Active time, and Errors
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

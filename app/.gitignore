@@ -1,0 +1,20 @@
+# Rust / Cargo build artifacts
+/target/
+**/*.rs.bk
+
+# Runtime catalog database and user settings (contain local paths & thumbnails)
+*.tcdb
+*.tcdb.tmp
+thumbcraft_settings.json
+
+# Crash dumps, logs, and temporary screenshots
+*.dmp
+*.log
+shots/
+
+# IDE & OS metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

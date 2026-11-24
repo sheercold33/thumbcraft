@@ -197,7 +197,7 @@ pub fn show_info_pane(ui: &mut Ui, app: &mut ThumbCraftApp, pal: &ThemePalette) 
             ui.add_space(6.0);
             ui.separator();
 
-            // Core File Properties (matching Thumbs10.exe 0xaba360 template)
+            // Core File Properties
             ui.label(
                 RichText::new("FILE PROPERTIES")
                     .size(10.5)

@@ -24,18 +24,17 @@ pub enum GsRenderMode {
     FullView,
 }
 
-/// Clamps DPI to 50..=1440 matching plug_gs.tpp FUN_100012c0 (0x32..=0x5a0)
+/// Clamps DPI to 50..=1440
 pub fn clamp_dpi(dpi: u32) -> u32 {
     dpi.clamp(GS_MIN_DPI, GS_MAX_DPI)
 }
 
-/// Converts DPI to pixels-per-meter matching plug_gs.tpp FUN_10001830 / FUN_10001c80:
-/// `(int)((double)dpi * 39.37 + 0.5)`
+/// Converts DPI to pixels-per-meter: `(int)((double)dpi * 39.37 + 0.5)`
 pub fn dpi_to_pixels_per_meter(dpi: u32) -> u32 {
     ((dpi as f64) * GS_DPI_TO_PPM_FACTOR + 0.5) as u32
 }
 
-/// Checks if a Ghostscript version string meets minimum revision 800 (8.00+) from FUN_10001830
+/// Checks if a Ghostscript version string meets minimum revision 800 (8.00+)
 pub fn meets_min_revision(version: &str) -> bool {
     let mut parts = version.trim().split('.');
     let major: u32 = parts.next().and_then(|s| s.parse().ok()).unwrap_or(0);
@@ -44,7 +43,7 @@ pub fn meets_min_revision(version: &str) -> bool {
     rev >= GS_MIN_REVISION
 }
 
-/// Identifies PDF/EPS/PostScript file signature from first 200 bytes matching plug_gs.tpp FUN_10001c80
+/// Identifies PDF/EPS/PostScript file signature from first 200 bytes
 pub fn identify_ps_pdf_header(path: &Path) -> Option<String> {
     let mut file = std::fs::File::open(path).ok()?;
     let mut buf = [0u8; GS_HEADER_PEEK_BYTES];
@@ -252,7 +251,7 @@ fn count_pdf_pages_fallback(text: &str) -> Option<usize> {
     best
 }
 
-/// Render a page of PDF/AI/EPS/PS/PRN using Ghostscript with exact plug_gs.tpp parameters
+/// Render a page of PDF/AI/EPS/PS/PRN using Ghostscript
 pub fn render_page(
     config: &GhostscriptConfig,
     path: &Path,
@@ -270,7 +269,7 @@ pub fn render_page(
     };
     let dpi = effective_gs_dpi(path, base_dpi, mode);
 
-    // Match plug_gs.tpp 0x10001ad5: antialias bits forced to 1 for thumbnails
+    // Use 1-bit antialiasing for fast thumbnails; configured alpha bits for previews/full views
     let aa_bits = match mode {
         GsRenderMode::Thumbnail => 1,
         GsRenderMode::Preview | GsRenderMode::FullView => match config.antialias_bits {
@@ -312,8 +311,7 @@ pub fn render_page(
     if config.eps_crop {
         cmd.arg("-dEPSCrop");
     }
-    // Match plug_gs.tpp FUN_10001830 (flags & 0x41 || color_depth == 1):
-    // disable interpolation for Thumbnail and Preview modes (or 1-bit depth); enable for FullView.
+    // Disable interpolation for Thumbnail and Preview modes (or 1-bit depth); enable for FullView.
     if matches!(mode, GsRenderMode::Thumbnail | GsRenderMode::Preview) || config.color_depth == 1 {
         cmd.arg("-dNOINTERPOLATE");
     } else {

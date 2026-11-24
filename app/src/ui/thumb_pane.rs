@@ -31,7 +31,7 @@ pub fn show_thumb_pane(ui: &mut Ui, app: &mut ThumbCraftApp, pal: &ThemePalette)
     app.ensure_visible_indices_cached();
     let visible_count = app.cached_visible_indices.len();
 
-    // Active orange/gold pane title bar matching reference/picture-1.png
+    // Active pane title bar
     let full_title = app.browse_title();
     crate::ui::theme::draw_pane_title_bar(ui, &full_title, true, pal);
 
@@ -802,7 +802,7 @@ fn draw_corner_badge(
     );
 }
 
-/// Right-click context menu matching reference/picture-7.png + F3 Rebuild Selected Thumbnails
+/// Right-click context menu for thumbnail items
 fn show_item_context_menu(
     ui: &mut Ui,
     idx: usize,

@@ -125,7 +125,7 @@ pub fn show_tasks_pane(ui: &mut Ui, app: &mut ThumbCraftApp, pal: &ThemePalette)
         );
     }
 
-    // Active / Queued / Recent Tasks list with right-click menu matching reference/picture-11.png
+    // Active / Queued / Recent Tasks list with right-click menu
     let mut ctx_action: Option<TaskContextAction> = None;
     let mut select_task: Option<u64> = None;
     let mut open_props: Option<u64> = None;

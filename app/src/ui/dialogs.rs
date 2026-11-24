@@ -346,7 +346,7 @@ fn show_layout_prefs(ui: &mut Ui, app: &mut ThumbCraftApp) {
     });
 }
 
-/// Thumbnail compression & database location preferences modeled after reference/picture-10.png
+/// Thumbnail compression & database location preferences
 #[allow(clippy::too_many_arguments)]
 fn show_thumb_prefs(
     ui: &mut Ui,
@@ -632,7 +632,7 @@ fn show_task_prefs(ui: &mut Ui, app: &mut ThumbCraftApp, pal: &ThemePalette) {
     );
 }
 
-/// Find Similar Images dialog matching reference/picture-8.png
+/// Find Similar Images dialog
 pub fn show_find_similar_dialog(ctx: &egui::Context, app: &mut ThumbCraftApp) {
     let Some(target_path) = app.similar_dialog_target.clone() else {
         return;
@@ -729,7 +729,7 @@ pub fn show_find_similar_dialog(ctx: &egui::Context, app: &mut ThumbCraftApp) {
     }
 }
 
-/// Task Properties dialog matching reference/picture-12.png
+/// Task Properties dialog
 pub fn show_task_properties_dialog(ctx: &egui::Context, app: &mut ThumbCraftApp) {
     let Some(task_id) = app.task_props_id else {
         return;
